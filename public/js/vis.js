@@ -4,6 +4,6 @@ Function.prototype.method = function(name, func) {
 }
 
 d3.csv("/data/data.csv", function(data) {
-  var africa = new Africa("body", data)
+  var africa = new Africa("#content", data)
   africa.barGraph.render()
 })

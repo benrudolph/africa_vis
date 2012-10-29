@@ -5,7 +5,22 @@ var Africa = function(selector, data) {
     if (d.Country === "Algeria" && d.Year === "2011" && d.Type_of_location === "U" &&
         d.Type_of_accom === "Undefined")
       return d
-  }), "age_group", "value", 400, 480)
+  }), "age_group", "value", 200, 480)
+
+  this.countries = []
+  this.data.forEach(function(d) {
+    if (this.countries.indexOf(d.Country) === -1)
+      this.countries.push(d.Country)
+  }.bind(this))
+  var mapOptions = {
+    center: new google.maps.LatLng(0, 17),
+    zoom: 3,
+    mapTypeId: google.maps.MapTypeId.TERRAIN,
+    minZoom: 3,
+    maxZoom: 5
+  }
+
+  this.map = new Map("", mapOptions, this.countries)
 }
 
 var BarGraph = function(selector, data, category, value, height, width) {
@@ -22,8 +37,8 @@ var BarGraph = function(selector, data, category, value, height, width) {
   this.value = value
   this.height = height
   this.width = width
-  this.padding = 150
   this.barWidth = 20
+  this.middlePadding = 40
 
   this.svg = d3
       .select(selector)
@@ -44,16 +59,18 @@ var BarGraph = function(selector, data, category, value, height, width) {
       .domain(d3.extent(data, function(d) {
         return +d[value]
       }))
-      .range([0, width / 2]),
+      .range([0, (width / 2) - (this.middlePadding / 2)]),
 
-  domain = []
+  this.domain = []
   data.forEach(function(d) {
-    if (domain.indexOf(d[category]) === -1)
-      domain.push(d[category])
-  })
+    var trimmedCategory = d[category].match(/\(.*\)/)[0]
+    if (this.domain.indexOf(trimmedCategory) === -1)
+      this.domain.push(trimmedCategory)
+  }.bind(this))
 
-  this.y.domain(domain)
-  this.y.domain(domain)
+  this.y.domain(this.domain)
+  this.y.domain(this.domain)
+
 }
 
 BarGraph.method("render", function() {
@@ -70,10 +87,10 @@ BarGraph.method("render", function() {
         return this.x(+d[this.value])
       }.bind(this))
       .attr("x", function(d) {
-        return this.width / 2
+        return (this.width / 2) + (this.middlePadding / 2)
       }.bind(this))
       .attr("y", function(d) {
-        return this.y(d[this.category]) - (this.height / 2)
+        return this.y(d[this.category]) - (this.barWidth / 2)
       }.bind(this))
 
   this.svg
@@ -88,10 +105,10 @@ BarGraph.method("render", function() {
         return this.x(+d[this.value])
       }.bind(this))
       .attr("x", function(d) {
-        return (this.width / 2) - this.x(+d[this.value])
+        return ((this.width / 2) - (this.middlePadding / 2)) - this.x(+d[this.value])
       }.bind(this))
       .attr("y", function(d) {
-        return this.y(d[this.category])
+        return this.y(d[this.category]) - (this.barWidth / 2)
       }.bind(this))
 
   this.svg
@@ -101,12 +118,12 @@ BarGraph.method("render", function() {
       .append("text")
       .attr("class", "maleValue")
       .attr("y", function(d) {
-        return this.y(d[this.category]) - (this.height / 2) + (this.barWidth / 2)
+        return this.y(d[this.category])
       }.bind(this))
       .attr("x", function(d) {
-        var x = (this.width / 2) + this.x(+d[this.value]) - 10
-        if (x < (this.width / 2) + 10) {
-          x = this.width / 2 + 7
+        var x = ((this.width / 2) + (this.middlePadding / 2)) + this.x(+d[this.value]) - 10
+        if (x < ((this.width / 2) + (this.middlePadding / 2)) + 10) {
+          x = ((this.width / 2) + (this.middlePadding / 2)) + 7
         }
         return x
       }.bind(this))
@@ -116,21 +133,40 @@ BarGraph.method("render", function() {
       .style("font-size", 10)
       .text(function(d) { return d[this.value] }.bind(this))
 
-  /*
+  this.svg
+      .selectAll(".femaleValue")
+      .data(this.femaleData)
+      .enter()
+      .append("text")
+      .attr("class", "femaleValue")
+      .attr("y", function(d) {
+        return this.y(d[this.category])
+      }.bind(this))
+      .attr("x", function(d) {
+        var x = ((this.width / 2) - (this.middlePadding / 2)) - this.x(+d[this.value]) + 10
+        if (x > ((this.width / 2) - (this.middlePadding / 2)) - 10) {
+          x = ((this.width / 2) - (this.middlePadding / 2)) - 7
+        }
+        return x
+      }.bind(this))
+      .attr("text-anchor", "middle")
+      .attr("dy", ".35em") // vertical-align: middle
+      .style("fill", "black")
+      .style("font-size", 10)
+      .text(function(d) { return d[this.value] }.bind(this))
+
   this.svg
       .selectAll(".label")
-      .data(this.data)
+      .data(this.domain)
       .enter()
       .append("text")
       .attr("class", "label")
-      .attr("y", this.height - this.padding)
-      .attr("x", function(d) {
-        return this.x(d[this.category])
+      .attr("y", function(d) {
+        return this.y(d)
       }.bind(this))
+      .attr("x", (this.width / 2))
+      .attr("text-anchor", "middle")
       .attr("dy", ".35em") // vertical-align: middle
-      .attr("text-anchor", "start")
-      .style("writing-mode", "tb")
-      .text(function(d) {
-        return d[this.category].match(/\(.*\)/)[0]
-      }.bind(this))*/
+      .style("font-size", 10)
+      .text(String)
 })
