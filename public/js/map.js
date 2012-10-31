@@ -7,8 +7,16 @@ var Map = function(data, options) {
 
   this.barGraph = null
   this.locations = window.locations
-  this.placeMarkers()
+  this.markerWidth = 10
+  this.markerHeight = 18
+
+  this.selectedMarkerWidth = 20
+  this.selectedMarkerHeight = 38
+  this.selectedMarker = null
+
+
   this.default = this.data[51]
+
   this.barGraph = new BarGraph("#graph", this.data.filter(function(d) {
     var loc = this.default.Location
     var country = this.default.Country
@@ -19,11 +27,12 @@ var Map = function(data, options) {
 }
 
 Map.method("init", function() {
+  this.placeMarkers()
   this.barGraph.render()
 })
 
 // TODO: Speed this up
-Map.method("getMarkerImage", function(location) {
+Map.method("getMarkerImage", function(location, width, height) {
   var accom;
   var markerImage;
   var BreakException = {}
@@ -33,29 +42,29 @@ Map.method("getMarkerImage", function(location) {
         accom = d.Type_of_accom
         if (accom === "Undefined") {
           markerImage = new google.maps.MarkerImage( "images/undefined_marker.png", null, null, null,
-              new google.maps.Size(20, 38))
+              new google.maps.Size(width, height))
         } else if (accom === "Camp") {
           markerImage = new google.maps.MarkerImage( "images/camp_marker.png", null, null, null,
-              new google.maps.Size(20, 38))
+              new google.maps.Size(width, height))
         } else if (accom === "Individual accommodation") {
           markerImage = new google.maps.MarkerImage( "images/individual_marker.png", null, null, null,
-              new google.maps.Size(20, 38))
+              new google.maps.Size(width, height))
         } else if (accom === "Dispersed") {
           markerImage = new google.maps.MarkerImage( "images/dispersed_marker.png", null, null, null,
-              new google.maps.Size(20, 38))
+              new google.maps.Size(width, height))
         } else if (accom === "Center") {
           markerImage = new google.maps.MarkerImage( "images/center_marker.png", null, null, null,
-              new google.maps.Size(20, 38))
+              new google.maps.Size(width, height))
         } else if (accom === "Settlement") {
           markerImage = new google.maps.MarkerImage( "images/settlement_marker.png", null, null, null,
-              new google.maps.Size(20, 38))
+              new google.maps.Size(width, height))
         } else {
           markerImage = new google.maps.MarkerImage( "images/undefined_marker.png", null, null, null,
-              new google.maps.Size(20, 38))
+              new google.maps.Size(width, height))
         }
         throw BreakException
       }
-    })
+    }.bind(this))
   } catch (e) {
     if (e!==BreakException) throw e;
   }
@@ -69,12 +78,23 @@ Map.method("placeMarkers", function() {
       position: this.locations[key],
       map: this.gMap,
       title: key,
-      icon: this.getMarkerImage(key)
+      icon: this.getMarkerImage(key, this.markerWidth, this.markerHeight)
     })
     this.markers.push(marker)
     var that = this
     google.maps.event.addListener(marker, "click", (function(marker, key) {
       return function() {
+        var markerImage;
+        if (that.selectedMarker !== null) {
+          markerImage = that.getMarkerImage(that.selectedMarker.title, that.selectedMarkerWIdth,
+              that.selectedMarkerHeight)
+          that.selectedMarker.setIcon(markerImage)
+        }
+
+        markerImage = that.getMarkerImage(key, that.selectedMarkerWidth, that.selectedMarkerHeight)
+        marker.setIcon(markerImage)
+        that.selectedMarker = marker
+
         var location = marker.title.split(",")[0]
         var country = marker.title.split(",")[1]
         var data = that.data.filter(function(d) {
