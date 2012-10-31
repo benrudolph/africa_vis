@@ -1,40 +1,15 @@
-var Africa = function(selector, data) {
-  this.data = data
-
-  this.barGraph = new BarGraph("body", this.data.filter(function(d) {
-    if (d.Country === "Algeria" && d.Year === "2011" && d.Type_of_location === "U" &&
-        d.Type_of_accom === "Undefined")
-      return d
-  }), "age_group", "value", 200, 480)
-
-  this.countries = []
-  this.data.forEach(function(d) {
-    if (this.countries.indexOf(d.Country) === -1)
-      this.countries.push(d.Country)
-  }.bind(this))
-  var mapOptions = {
-    center: new google.maps.LatLng(0, 17),
-    zoom: 3,
-    mapTypeId: google.maps.MapTypeId.TERRAIN,
-    minZoom: 3,
-    maxZoom: 5
-  }
-
-  this.map = new Map("", mapOptions, this.countries)
-}
-
-var BarGraph = function(selector, data, category, value, height, width) {
+var BarGraph = function(selector, data, height, width) {
+  this.category = "Age_group"
+  this.value = "Value"
   this.maleData = data.filter(function(d) {
-    if (d[category].match(/Male/))
+    if (d[this.category].match(/Male/))
       return d
-  })
+  }.bind(this))
   this.femaleData = data.filter(function(d) {
-    if (d[category].match(/Female/))
+    if (d[this.category].match(/Female/))
       return d
-  })
+  }.bind(this))
 
-  this.category = category
-  this.value = value
   this.height = height
   this.width = width
   this.barWidth = 20
@@ -57,21 +32,122 @@ var BarGraph = function(selector, data, category, value, height, width) {
       .scale
       .linear()
       .domain(d3.extent(data, function(d) {
-        return +d[value]
-      }))
+        return +d[this.value]
+      }.bind(this)))
       .range([0, (width / 2) - (this.middlePadding / 2)]),
 
   this.domain = []
   data.forEach(function(d) {
-    var trimmedCategory = d[category].match(/\(.*\)/)[0]
+    var trimmedCategory = d[this.category].match(/\(.*\)/)[0]
     if (this.domain.indexOf(trimmedCategory) === -1)
       this.domain.push(trimmedCategory)
   }.bind(this))
 
   this.y.domain(this.domain)
-  this.y.domain(this.domain)
-
 }
+
+BarGraph.method("update", function(data) {
+  this.maleData = data.filter(function(d) {
+    if (d[this.category].match(/Male/))
+      return d
+  }.bind(this))
+  this.femaleData = data.filter(function(d) {
+    if (d[this.category].match(/Female/))
+      return d
+  }.bind(this))
+
+  this.x = d3
+      .scale
+      .linear()
+      .domain(d3.extent(data, function(d) {
+        return +d[this.value]
+      }.bind(this)))
+      .range([0, (this.width / 2) - (this.middlePadding / 2)])
+
+
+  var males = this.svg
+      .selectAll(".male")
+      .data(this.maleData)
+
+  males
+      .transition()
+      .duration(500)
+      .attr("width", function(d) {
+        return this.x(+d[this.value])
+      }.bind(this))
+      .attr("x", function(d) {
+        return (this.width / 2) + (this.middlePadding / 2)
+      }.bind(this))
+      .attr("y", function(d) {
+        return this.y(d[this.category]) - (this.barWidth / 2)
+      }.bind(this))
+
+  var females = this.svg
+      .selectAll(".female")
+      .data(this.femaleData)
+
+  females
+      .transition()
+      .duration(500)
+      .attr("width", function(d) {
+        return this.x(+d[this.value])
+      }.bind(this))
+      .attr("x", function(d) {
+        return ((this.width / 2) - (this.middlePadding / 2)) - this.x(+d[this.value])
+      }.bind(this))
+      .attr("y", function(d) {
+        return this.y(d[this.category]) - (this.barWidth / 2)
+      }.bind(this))
+
+  var maleValues = this.svg
+      .selectAll(".maleValue")
+      .data(this.maleData)
+
+
+  maleValues
+      .transition()
+      .duration(500)
+      .attr("y", function(d) {
+        return this.y(d[this.category])
+      }.bind(this))
+      .attr("x", function(d) {
+        var x = ((this.width / 2) + (this.middlePadding / 2)) + this.x(+d[this.value]) - 10
+        if (x < ((this.width / 2) + (this.middlePadding / 2)) + 10) {
+          x = ((this.width / 2) + (this.middlePadding / 2)) + 7
+        }
+        return x
+      }.bind(this))
+      .attr("text-anchor", "middle")
+      .attr("dy", ".35em") // vertical-align: middle
+      .style("fill", "black")
+      .style("font-size", 10)
+      .text(function(d) { return d[this.value] }.bind(this))
+
+  var femaleValues = this.svg
+      .selectAll(".femaleValue")
+      .data(this.femaleData)
+
+  femaleValues
+      .transition()
+      .duration(500)
+      .attr("y", function(d) {
+        return this.y(d[this.category])
+      }.bind(this))
+      .attr("x", function(d) {
+        var x = ((this.width / 2) - (this.middlePadding / 2)) - this.x(+d[this.value]) + 10
+        if (x > ((this.width / 2) - (this.middlePadding / 2)) - 10) {
+          x = ((this.width / 2) - (this.middlePadding / 2)) - 7
+        }
+        return x
+      }.bind(this))
+      .attr("text-anchor", "middle")
+      .attr("dy", ".35em") // vertical-align: middle
+      .style("fill", "black")
+      .style("font-size", 10)
+      .text(function(d) { return d[this.value] }.bind(this))
+
+
+})
 
 BarGraph.method("render", function() {
 
