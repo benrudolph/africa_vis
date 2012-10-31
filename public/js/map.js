@@ -6,7 +6,6 @@ var Map = function(data, options) {
   this.markers = []
 
   this.barGraph = null
-  this.locations = window.locations
   this.markerWidth = 10
   this.markerHeight = 18
 
@@ -17,13 +16,7 @@ var Map = function(data, options) {
 
   this.default = this.data[51]
 
-  this.barGraph = new BarGraph("#graph", this.data.filter(function(d) {
-    var loc = this.default.Location
-    var country = this.default.Country
-    if (d.Country === country && d.Location === loc && d.Year === "2011") {
-      return d
-    }
-  }.bind(this)), 200, 480)
+  this.barGraph = new BarGraph("#graph", this.default, 200, 480)
 }
 
 Map.method("init", function() {
@@ -32,80 +25,66 @@ Map.method("init", function() {
 })
 
 // TODO: Speed this up
-Map.method("getMarkerImage", function(location, width, height) {
-  var accom;
+Map.method("getMarkerImage", function(d, width, height) {
   var markerImage;
-  var BreakException = {}
-  try {
-    this.data.forEach(function(d) {
-      if (d.Location + "," + d.Country === location) {
-        accom = d.Type_of_accom
-        if (accom === "Undefined") {
-          markerImage = new google.maps.MarkerImage( "images/undefined_marker.png", null, null, null,
-              new google.maps.Size(width, height))
-        } else if (accom === "Camp") {
-          markerImage = new google.maps.MarkerImage( "images/camp_marker.png", null, null, null,
-              new google.maps.Size(width, height))
-        } else if (accom === "Individual accommodation") {
-          markerImage = new google.maps.MarkerImage( "images/individual_marker.png", null, null, null,
-              new google.maps.Size(width, height))
-        } else if (accom === "Dispersed") {
-          markerImage = new google.maps.MarkerImage( "images/dispersed_marker.png", null, null, null,
-              new google.maps.Size(width, height))
-        } else if (accom === "Center") {
-          markerImage = new google.maps.MarkerImage( "images/center_marker.png", null, null, null,
-              new google.maps.Size(width, height))
-        } else if (accom === "Settlement") {
-          markerImage = new google.maps.MarkerImage( "images/settlement_marker.png", null, null, null,
-              new google.maps.Size(width, height))
-        } else {
-          markerImage = new google.maps.MarkerImage( "images/undefined_marker.png", null, null, null,
-              new google.maps.Size(width, height))
-        }
-        throw BreakException
-      }
-    }.bind(this))
-  } catch (e) {
-    if (e!==BreakException) throw e;
+
+  if (d.Type_of_accom === "Undefined") {
+    markerImage = new google.maps.MarkerImage( "images/undefined_marker.png", null, null, null,
+        new google.maps.Size(width, height))
+  } else if (d.Type_of_accom === "Camp") {
+    markerImage = new google.maps.MarkerImage( "images/camp_marker.png", null, null, null,
+        new google.maps.Size(width, height))
+  } else if (d.Type_of_accom === "Individual accommodation") {
+    markerImage = new google.maps.MarkerImage( "images/individual_marker.png", null, null, null,
+        new google.maps.Size(width, height))
+  } else if (d.Type_of_accom === "Dispersed") {
+    markerImage = new google.maps.MarkerImage( "images/dispersed_marker.png", null, null, null,
+        new google.maps.Size(width, height))
+  } else if (d.Type_of_accom === "Center") {
+    markerImage = new google.maps.MarkerImage( "images/center_marker.png", null, null, null,
+        new google.maps.Size(width, height))
+  } else if (d.Type_of_accom === "Settlement") {
+    markerImage = new google.maps.MarkerImage( "images/settlement_marker.png", null, null, null,
+        new google.maps.Size(width, height))
+  } else {
+    markerImage = new google.maps.MarkerImage( "images/undefined_marker.png", null, null, null,
+        new google.maps.Size(width, height))
   }
   return markerImage
 })
 
 Map.method("placeMarkers", function() {
   var marker;
-  for (var key in this.locations) {
+  this.data.forEach(function(d) {
     marker = new google.maps.Marker({
-      position: this.locations[key],
+      position: new google.maps.LatLng(d.Lat, d.Lng),
       map: this.gMap,
-      title: key,
-      icon: this.getMarkerImage(key, this.markerWidth, this.markerHeight)
+      title: d.Address,
+      icon: this.getMarkerImage(d, this.markerWidth, this.markerHeight)
     })
     this.markers.push(marker)
+
     var that = this
-    google.maps.event.addListener(marker, "click", (function(marker, key) {
+    google.maps.event.addListener(marker, "click", (function(marker, d) {
       return function() {
         var markerImage;
         if (that.selectedMarker !== null) {
-          markerImage = that.getMarkerImage(that.selectedMarker.title, that.selectedMarkerWIdth,
+          markerImage = that.getMarkerImage(d,
+              that.selectedMarkerWIdth,
               that.selectedMarkerHeight)
           that.selectedMarker.setIcon(markerImage)
         }
 
-        markerImage = that.getMarkerImage(key, that.selectedMarkerWidth, that.selectedMarkerHeight)
+        markerImage = that.getMarkerImage(d, that.selectedMarkerWidth, that.selectedMarkerHeight)
         marker.setIcon(markerImage)
         that.selectedMarker = marker
 
-        var location = marker.title.split(",")[0]
-        var country = marker.title.split(",")[1]
-        var data = that.data.filter(function(d) {
-          if (d.Country === country && d.Location === location && d.Year === "2011") {
-            return d
-          }
-        })
-        that.barGraph.update(data)
+        that.barGraph.update(d)
       }
-    })(marker, key))
-  }
+    })(marker, d))
+
+
+  }.bind(this))
 })
 
 

@@ -24,7 +24,7 @@ var ScatterPlot = function(selector, data, height, width) {
 
   this.x = d3
       .scale
-      .linear()
+      .log()
       .domain(d3.extent(this.data, function(d) {
         return (+d["AgeGroupMale(Total)"] + +d["AgeGroupFemale(Total)"])
       }.bind(this)))
@@ -35,18 +35,18 @@ var ScatterPlot = function(selector, data, height, width) {
 }
 
 ScatterPlot.method("render", function(d) {
-  this.svg
+  /*this.svg
       .selectAll(".xticks")
-      .data(this.x.ticks(10))
+      .data(this.x.ticks(1))
       .enter().append("line")
       .attr("class", "xticks")
       .attr("x1", this.x)
       .attr("x2", this.x)
       .attr("y1", this.margin / 2)
       .attr("y2", this.height - (this.margin / 2))
-      .style("stroke", "#ccc");
+      .style("stroke", "#ccc");*/
 
-  this.svg
+  /*this.svg
       .selectAll(".xrule")
       .data(this.x.ticks(10))
       .enter()
@@ -56,7 +56,7 @@ ScatterPlot.method("render", function(d) {
       .attr("y", this.height - (this.margin / 2))
       .attr("dy", -3)
       .attr("text-anchor", "middle")
-      .text(String)
+      .text(String)*/
 
   this.svg
       .selectAll(".yticks")
@@ -82,7 +82,7 @@ ScatterPlot.method("render", function(d) {
       .append("circle")
       .attr("class", "circle")
       .attr("cx", function(d) {
-        return this.x(d["AgeGroupFemale(Total)"] + d["AgeGroupMale(Total)"])
+        return this.x(+d["AgeGroupFemale(Total)"] + +d["AgeGroupMale(Total)"])
       }.bind(this))
       .attr("cy", function(d) {
         return this.height - this.y(+d["AgeGroupMale(Total)"] /
