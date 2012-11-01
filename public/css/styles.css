@@ -2,3 +2,32 @@
   width: 400px;
   height: 500px;
 }
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis g text {
+  font-size: 8px;
+}
+
+rect.extent {
+  fill: #000;
+  fill-opacity: .125;
+  stroke: #fff;
+}
+
+rect.frame {
+  fill: #fff;
+  fill-opacity: .7;
+  stroke: #aaa;
+}
+
+circle.show {
+  fill-opacity: .7
+}
+
+circle.dim {
+  fill-opacity: .2
+}

@@ -3,17 +3,8 @@ Function.prototype.method = function(name, func) {
   return this
 }
 
-d3.csv("/data/age_data.csv", function(data) {
-  var mapOptions = {
-    center: new google.maps.LatLng(0, 17),
-    zoom: 3,
-    mapTypeId: google.maps.MapTypeId.TERRAIN,
-    minZoom: 3,
-    maxZoom: 5
-  }
-
-  var map = new Map(data, mapOptions)
-  map.init()
-  var scatter = new ScatterPlot("#scatter", data, 500, 500)
-  scatter.render()
+$(document).ready(function() {
+  d3.csv("/data/data.csv", function(data) {
+    var africa = new Africa(data)
+  })
 })

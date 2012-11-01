@@ -55,6 +55,7 @@ var BarGraph = function(selector, data, height, width) {
 BarGraph.method("transformData", function(data) {
   var hash = d3.map(data)
   var address = data.Address
+  var id = data.ID
 
   this.maleData = []
   this.femaleData = []
@@ -62,12 +63,14 @@ BarGraph.method("transformData", function(data) {
     if (key.match(/Female/) && this.dimensionMap[key]) {
       var datum = {}
       datum["Address"] = address
+      datum["ID"] = id
       datum["AgeGroup"] = this.dimensionMap[key]
       datum["Count"] = value
       this.femaleData.push(datum)
     } else if (key.match(/Male/) && this.dimensionMap[key]) {
       var datum = {}
       datum["Address"] = address
+      datum["ID"] = id
       datum["AgeGroup"] = this.dimensionMap[key]
       datum["Count"] = value
       this.maleData.push(datum)

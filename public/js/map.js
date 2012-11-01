@@ -1,9 +1,11 @@
-var Map = function(data, options) {
+var Map = function(data, options, africa) {
   this.data = data
   this.options = options
+  this.africa = africa
 
   this.gMap = new google.maps.Map(document.getElementById("map"), this.options);
   this.markers = []
+  this.markerHash = {}
 
   this.barGraph = null
   this.markerWidth = 10
@@ -24,7 +26,24 @@ Map.method("init", function() {
   this.barGraph.render()
 })
 
-// TODO: Speed this up
+Map.method("setSelectedMarker", function(id) {
+  var markerImage;
+  var marker = this.markerHash[id]
+  if (this.selectedMarker !== null) {
+    markerImage = this.getMarkerImage(this.selectedMarker.d,
+        this.markerWidth,
+        this.markerHeight)
+    this.selectedMarker.setIcon(markerImage)
+  }
+
+  markerImage = this.getMarkerImage(marker.d, this.selectedMarkerWidth, this.selectedMarkerHeight)
+  marker.setIcon(markerImage)
+  this.selectedMarker = marker
+
+  this.barGraph.update(this.selectedMarker.d)
+
+})
+
 Map.method("getMarkerImage", function(d, width, height) {
   var markerImage;
 
@@ -59,27 +78,17 @@ Map.method("placeMarkers", function() {
     marker = new google.maps.Marker({
       position: new google.maps.LatLng(d.Lat, d.Lng),
       map: this.gMap,
-      title: d.Address,
+      title: d.ID,
       icon: this.getMarkerImage(d, this.markerWidth, this.markerHeight)
     })
+    marker.d = d
     this.markers.push(marker)
+    this.markerHash[d.ID] = marker
 
     var that = this
     google.maps.event.addListener(marker, "click", (function(marker, d) {
       return function() {
-        var markerImage;
-        if (that.selectedMarker !== null) {
-          markerImage = that.getMarkerImage(d,
-              that.selectedMarkerWIdth,
-              that.selectedMarkerHeight)
-          that.selectedMarker.setIcon(markerImage)
-        }
-
-        markerImage = that.getMarkerImage(d, that.selectedMarkerWidth, that.selectedMarkerHeight)
-        marker.setIcon(markerImage)
-        that.selectedMarker = marker
-
-        that.barGraph.update(d)
+        that.africa.setSelected(d.ID)
       }
     })(marker, d))
 
@@ -87,4 +96,11 @@ Map.method("placeMarkers", function() {
   }.bind(this))
 })
 
-
+Map.method("brush", function(ids) {
+  for (var key in this.markerHash) {
+    if (ids.indexOf(key) !== -1 && this.markerHash[key].getMap() === null)
+      this.markerHash[key].setMap(this.gMap)
+    else if (ids.indexOf(key) === -1 && this.markerHash[key].getMap() !== null)
+      this.markerHash[key].setMap(null)
+  }
+})
