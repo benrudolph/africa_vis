@@ -1,14 +1,17 @@
-var ScatterPlot = function(selector, data, height, width, africa) {
+var ScatterPlot = function(selector, data, height, width, africa, cyFn, name, yLabel) {
   this.data = data.filter(function(d) {
     if (+d["AgeGroupFemale(Total)"] > 0 && +d["AgeGroupMale(Total)"] > 0) {
       return d
     }
   })
-  this.margin = 40
+  this.margin = 80
   this.height = height
   this.width = width
   this.africa = africa
   this.circleHash = {}
+  this.cyFn = cyFn
+  this.name = name
+  this.yLabel = yLabel
 
   this.svg = d3
       .select(selector)
@@ -40,6 +43,7 @@ var ScatterPlot = function(selector, data, height, width, africa) {
 
   this.yAxis = d3.svg.axis()
       .scale(this.y)
+      .tickFormat(d3.format(".0%"))
       .orient("left")
 
   this.radius = 5
@@ -93,39 +97,58 @@ ScatterPlot.method("render", function(d) {
       .enter()
       .append("circle")
       .attr("cx", function(d, i) {
-        return this.x(+d["AgeGroupFemale(Total)"] + +d["AgeGroupMale(Total)"])
+        return this.x(+d["AgeGroupFemale(Total)"] + +d["AgeGroupMale(Total)"]) + (this.margin / 2)
       }.bind(this))
       .attr("cy", function(d) {
-        return this.height - (this.y(+d["AgeGroupFemale(Total)"] /
-            (+d["AgeGroupFemale(Total)"] + +d["AgeGroupMale(Total)"]))) - (this.margin / 2)
+        return this.height - (this.y(this.cyFn(d))) - (this.margin / 2)
       }.bind(this))
       .attr("r", this.radius)
-      .attr("class", "circle show")
+      .attr("class", function(d) {
+        return d.Type_of_accom + " " + this.name + " show"
+      }.bind(this))
       .attr("dID", function(d) {
         return d.ID
       })
       .attr("address", function(d) {
         return d.Address
       })
-      .attr("fill", function(d) {
-        return "black"
-      }.bind(this))
+      .each(function(d) {
+        var id = d.ID
+        var options = {
+          title: d.Address
+        }
+        $(d).tooltip(options)
+
+      })
       .on("click", function(d) {
         that.africa.setSelected(d.ID)
       })
 
 
-  // Hack to apply bootstrap event to d3 selection
-  d3.selectAll(".circle")[0]
+  d3.selectAll("." + this.name)[0]
       .forEach(function(d) {
-        var id = d3.select(d).attr("dID")
-        var options = {
-          title: d3.select(d).attr("address")
-        }
-        $(d).tooltip(options)
-        this.circleHash[id] = d
-
+        this.circleHash[d3.select(d).attr("dID")] = d
       }.bind(this))
+
+  this.svg
+      .append("text")
+      .attr("class", "x scatter_label")
+      .attr("text-anchor", "middle")
+      .attr("x", (this.width / 2))
+      .attr("y", this.height - (this.margin / 2))
+      .style("font-size", "8px")
+      .text("Total Population (log scale)")
+
+  this.svg
+      .append("text")
+      .attr("class", "y scatter_label")
+      .attr("text-anchor", "middle")
+      .attr("x", -this.height / 2)
+      .attr("y", 0 )
+      .attr("dy", ".75em")
+      .attr("transform", "rotate(-90)")
+      .style("font-size", "8px")
+      .text(this.yLabel)
 
 })
 
@@ -135,29 +158,38 @@ ScatterPlot.method("brushstart", function(d) {
 ScatterPlot.method("brush", function(p) {
   var e = this.brush.extent()
   var ids = []
-  this.svg.selectAll("circle").attr("class", function(d) {
+  this.svg.selectAll("." + this.name).each(function(d) {
     var population = +d["AgeGroupFemale(Total)"] + +d["AgeGroupMale(Total)"]
-    var percent = 1 - (+d["AgeGroupFemale(Total)"] /
-            (+d["AgeGroupFemale(Total)"] + +d["AgeGroupMale(Total)"]))
+    var percent = 1 - this.cyFn(d)
     if (e[0][0] <= population && population <= e[1][0]
       && e[0][1] <= percent && percent <= e[1][1]) {
       ids.push(d.ID)
-      return "show"
     }
-    return "dim"
-  })
+  }.bind(this))
 
-  this.africa.brush(ids)
+  this.africa.highlight(ids)
+})
+
+ScatterPlot.method("highlight", function(ids) {
+  for (var key in this.circleHash) {
+    if (ids.indexOf(key) !== -1) {
+      d3.select(this.circleHash[key]).classed(this.name + " show", true)
+      d3.select(this.circleHash[key]).classed("dim", false)
+    }
+    else {
+      d3.select(this.circleHash[key]).classed("show", false)
+      d3.select(this.circleHash[key]).classed("dim", true)
+    }
+  }
 })
 
 ScatterPlot.method("brushend", function(d) {
   var ids = []
   if (this.brush.empty()) {
-    this.svg.selectAll("circle").attr("class", function(d) {
+    this.svg.selectAll("." + this.name).each(function(d) {
       ids.push(d.ID)
-      return "show"
     })
-    this.africa.brush(ids)
+    this.africa.highlight(ids)
   }
 
 })

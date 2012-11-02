@@ -31,3 +31,23 @@ circle.show {
 circle.dim {
   fill-opacity: .2
 }
+
+circle.Undefined {
+  fill: #00ffff;
+}
+
+circle.Camp {
+  fill: #00ff00
+}
+
+circle.Dispersed {
+  fill: #800080
+}
+
+cirlce.Center {
+  fill: #ff0000
+}
+
+circle.Settlement {
+  fill: #ffff00
+}
