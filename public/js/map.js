@@ -18,7 +18,7 @@ var Map = function(data, options, africa) {
 
   this.default = this.data[51]
 
-  this.barGraph = new BarGraph("#graph", this.default, 200, 480)
+  this.barGraph = new BarGraph("#graph", this.default, 250, 900)
 }
 
 Map.method("init", function() {

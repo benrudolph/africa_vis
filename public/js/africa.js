@@ -27,7 +27,8 @@ var Africa = function(data) {
 
 Africa.method("setSelected", function(id) {
   this.map.setSelectedMarker(id)
-  this.scatter.setSelectedCircle(id)
+  this.scatter1.setSelectedCircle(id)
+  this.scatter2.setSelectedCircle(id)
 
 })
 

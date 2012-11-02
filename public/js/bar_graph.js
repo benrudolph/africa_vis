@@ -20,7 +20,9 @@ var BarGraph = function(selector, data, height, width) {
   this.height = height
   this.width = width
   this.barWidth = 20
-  this.middlePadding = 40
+  this.middlePadding = 50
+  this.margin = 80
+  this.textMargin = 20
 
   this.svg = d3
       .select(selector)
@@ -33,7 +35,7 @@ var BarGraph = function(selector, data, height, width) {
   this.y = d3
       .scale
       .ordinal()
-      .rangePoints([0, height], 1),
+      .rangePoints([this.margin / 2, height - (this.margin / 2)], 1),
 
   this.x = d3
       .scale
@@ -41,7 +43,7 @@ var BarGraph = function(selector, data, height, width) {
       .domain(d3.extent(this.maleData.concat(this.femaleData), function(d) {
         return +d.Count
       }.bind(this)))
-      .range([0, (width / 2) - (this.middlePadding / 2)]),
+      .range([this.margin / 2, (width / 2) - (this.middlePadding / 2) - this.margin / 2]),
 
   this.domain = []
   this.maleData.concat(this.femaleData).forEach(function(d) {
@@ -139,8 +141,8 @@ BarGraph.method("update", function(data) {
         return this.y(d.AgeGroup)
       }.bind(this))
       .attr("x", function(d) {
-        var x = ((this.width / 2) + (this.middlePadding / 2)) + this.x(+d.Count) - 10
-        if (x < ((this.width / 2) + (this.middlePadding / 2)) + 10) {
+        var x = ((this.width / 2) + (this.middlePadding / 2)) + this.x(+d.Count) - this.textMargin
+        if (x < ((this.width / 2) + (this.middlePadding / 2)) + this.textMargin) {
           x = ((this.width / 2) + (this.middlePadding / 2)) + 7
         }
         return x
@@ -162,8 +164,8 @@ BarGraph.method("update", function(data) {
         return this.y(d.AgeGroup)
       }.bind(this))
       .attr("x", function(d) {
-        var x = ((this.width / 2) - (this.middlePadding / 2)) - this.x(+d.Count) + 10
-        if (x > ((this.width / 2) - (this.middlePadding / 2)) - 10) {
+        var x = ((this.width / 2) - (this.middlePadding / 2)) - this.x(+d.Count) + this.textMargin
+        if (x > ((this.width / 2) - (this.middlePadding / 2)) - this.textMargin) {
           x = ((this.width / 2) - (this.middlePadding / 2)) - 7
         }
         return x
@@ -225,8 +227,8 @@ BarGraph.method("render", function() {
         return this.y(d.AgeGroup)
       }.bind(this))
       .attr("x", function(d) {
-        var x = ((this.width / 2) + (this.middlePadding / 2)) + this.x(+d.Count) - 10
-        if (x < ((this.width / 2) + (this.middlePadding / 2)) + 10) {
+        var x = ((this.width / 2) + (this.middlePadding / 2)) + this.x(+d.Count) - this.textMargin
+        if (x < ((this.width / 2) + (this.middlePadding / 2)) + this.textMargin) {
           x = ((this.width / 2) + (this.middlePadding / 2)) + 7
         }
         return x
@@ -247,8 +249,8 @@ BarGraph.method("render", function() {
         return this.y(d.AgeGroup)
       }.bind(this))
       .attr("x", function(d) {
-        var x = ((this.width / 2) - (this.middlePadding / 2)) - this.x(+d.Count) + 10
-        if (x > ((this.width / 2) - (this.middlePadding / 2)) - 10) {
+        var x = ((this.width / 2) - (this.middlePadding / 2)) - this.x(+d.Count) + this.textMargin
+        if (x > ((this.width / 2) - (this.middlePadding / 2)) - this.textMargin) {
           x = ((this.width / 2) - (this.middlePadding / 2)) - 7
         }
         return x

@@ -33,11 +33,11 @@ var ScatterPlot = function(selector, data, height, width, africa, cyFn, name, yL
       .domain(d3.extent(this.data, function(d) {
         return (+d["AgeGroupMale(Total)"] + +d["AgeGroupFemale(Total)"]) + 1
       }.bind(this)))
-      .range([this.margin / 2, this.width - this.margin])
+      .range([this.margin / 2, this.width - (this.margin / 2)])
 
   this.xAxis = d3.svg.axis()
       .scale(this.x)
-      .tickValues([0, 1000, 10000, 100000, 500000])
+      .tickValues([100, 1000, 10000, 100000, 500000])
       .tickFormat(d3.format(",.0f"))
       .orient("bottom")
 
@@ -59,7 +59,7 @@ ScatterPlot.method("render", function(d) {
   this.svg
       .append("g")
       .attr("class", "x axis")
-      .attr("transform", "translate(" + (this.margin / 2) + ", " + (this.height - (this.margin)) + ")")
+      .attr("transform", "translate(0, " + (this.height - (this.margin)) + ")")
       .call(this.xAxis)
 
   this.svg
@@ -91,13 +91,14 @@ ScatterPlot.method("render", function(d) {
   this.brush.data = this.data
 
   var that = this
+
   this.svg
       .selectAll(".circle")
       .data(this.data)
       .enter()
       .append("circle")
       .attr("cx", function(d, i) {
-        return this.x(+d["AgeGroupFemale(Total)"] + +d["AgeGroupMale(Total)"]) + (this.margin / 2)
+        return this.x(+d["AgeGroupFemale(Total)"] + +d["AgeGroupMale(Total)"])
       }.bind(this))
       .attr("cy", function(d) {
         return this.height - (this.y(this.cyFn(d))) - (this.margin / 2)
@@ -117,7 +118,7 @@ ScatterPlot.method("render", function(d) {
         var options = {
           title: d.Address
         }
-        $(d).tooltip(options)
+        $(this).tooltip(options)
 
       })
       .on("click", function(d) {
@@ -144,7 +145,7 @@ ScatterPlot.method("render", function(d) {
       .attr("class", "y scatter_label")
       .attr("text-anchor", "middle")
       .attr("x", -this.height / 2)
-      .attr("y", 0 )
+      .attr("y", 0)
       .attr("dy", ".75em")
       .attr("transform", "rotate(-90)")
       .style("font-size", "8px")
