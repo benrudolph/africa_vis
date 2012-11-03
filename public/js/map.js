@@ -24,6 +24,7 @@ var Map = function(data, options, africa) {
 Map.method("init", function() {
   this.placeMarkers()
   this.barGraph.render()
+  this.africa.setSelected(this.default.ID)
 })
 
 Map.method("setSelectedMarker", function(id) {
@@ -78,7 +79,7 @@ Map.method("placeMarkers", function() {
     marker = new google.maps.Marker({
       position: new google.maps.LatLng(d.Lat, d.Lng),
       map: this.gMap,
-      title: d.ID,
+      title: d.Address,
       icon: this.getMarkerImage(d, this.markerWidth, this.markerHeight)
     })
     marker.d = d

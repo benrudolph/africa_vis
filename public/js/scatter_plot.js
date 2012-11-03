@@ -154,6 +154,11 @@ ScatterPlot.method("render", function(d) {
 })
 
 ScatterPlot.method("brushstart", function(d) {
+  this.africa.setActiveBrush(this.name)
+})
+
+ScatterPlot.method("clearBrushes", function() {
+  this.svg.call(this.brush.clear())
 })
 
 ScatterPlot.method("brush", function(p) {
@@ -197,7 +202,7 @@ ScatterPlot.method("brushend", function(d) {
 
 ScatterPlot.method("setSelectedCircle", function(id) {
   if (this.selectedCircle !== null)
-    this.selectedCircle.attr("fill", "black")
+    this.selectedCircle.classed("selected", false)
   this.selectedCircle = d3.select(this.circleHash[id])
-  this.selectedCircle.attr("fill", "red")
+  this.selectedCircle.classed("selected", true)
 })

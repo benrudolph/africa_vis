@@ -16,6 +16,7 @@ var BarGraph = function(selector, data, height, width) {
     "AgeGroupMale(Total)": "Total"
   }
 
+  this.address = null
   this.transformData(data)
   this.height = height
   this.width = width
@@ -56,7 +57,7 @@ var BarGraph = function(selector, data, height, width) {
 
 BarGraph.method("transformData", function(data) {
   var hash = d3.map(data)
-  var address = data.Address
+  this.address = data.Address
   var id = data.ID
 
   this.maleData = []
@@ -64,14 +65,14 @@ BarGraph.method("transformData", function(data) {
   hash.forEach(function(key, value) {
     if (key.match(/Female/) && this.dimensionMap[key]) {
       var datum = {}
-      datum["Address"] = address
+      datum["Address"] = this.address
       datum["ID"] = id
       datum["AgeGroup"] = this.dimensionMap[key]
       datum["Count"] = value
       this.femaleData.push(datum)
     } else if (key.match(/Male/) && this.dimensionMap[key]) {
       var datum = {}
-      datum["Address"] = address
+      datum["Address"] = this.address
       datum["ID"] = id
       datum["AgeGroup"] = this.dimensionMap[key]
       datum["Count"] = value
@@ -143,7 +144,7 @@ BarGraph.method("update", function(data) {
       .attr("x", function(d) {
         var x = ((this.width / 2) + (this.middlePadding / 2)) + this.x(+d.Count) - this.textMargin
         if (x < ((this.width / 2) + (this.middlePadding / 2)) + this.textMargin) {
-          x = ((this.width / 2) + (this.middlePadding / 2)) + 7
+          x = ((this.width / 2) + (this.middlePadding / 2)) + this.textMargin
         }
         return x
       }.bind(this))
@@ -166,7 +167,7 @@ BarGraph.method("update", function(data) {
       .attr("x", function(d) {
         var x = ((this.width / 2) - (this.middlePadding / 2)) - this.x(+d.Count) + this.textMargin
         if (x > ((this.width / 2) - (this.middlePadding / 2)) - this.textMargin) {
-          x = ((this.width / 2) - (this.middlePadding / 2)) - 7
+          x = ((this.width / 2) - (this.middlePadding / 2)) - this.textMargin
         }
         return x
       }.bind(this))
@@ -176,10 +177,21 @@ BarGraph.method("update", function(data) {
       .style("font-size", 10)
       .text(function(d) { return d.Count }.bind(this))
 
-
+  this.svg
+      .select(".title")
+      .text("Age breakdown for refugee camp: " + this.address)
 })
 
 BarGraph.method("render", function() {
+
+  this.svg
+      .append("text")
+      .attr("class", "title")
+      .attr("text-anchor", "middle")
+      .attr("x", (this.width / 2))
+      .attr("y", this.margin / 4)
+      .style("font-size", "12px")
+      .text("Age breakdown for refugee camp: " + this.address)
 
   this.svg
       .selectAll(".male")
@@ -229,7 +241,7 @@ BarGraph.method("render", function() {
       .attr("x", function(d) {
         var x = ((this.width / 2) + (this.middlePadding / 2)) + this.x(+d.Count) - this.textMargin
         if (x < ((this.width / 2) + (this.middlePadding / 2)) + this.textMargin) {
-          x = ((this.width / 2) + (this.middlePadding / 2)) + 7
+          x = ((this.width / 2) + (this.middlePadding / 2)) + this.textMargin
         }
         return x
       }.bind(this))
@@ -251,7 +263,7 @@ BarGraph.method("render", function() {
       .attr("x", function(d) {
         var x = ((this.width / 2) - (this.middlePadding / 2)) - this.x(+d.Count) + this.textMargin
         if (x > ((this.width / 2) - (this.middlePadding / 2)) - this.textMargin) {
-          x = ((this.width / 2) - (this.middlePadding / 2)) - 7
+          x = ((this.width / 2) - (this.middlePadding / 2)) - this.textMargin
         }
         return x
       }.bind(this))

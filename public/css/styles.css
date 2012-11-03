@@ -27,19 +27,27 @@ rect.frame {
 }
 
 circle.show {
-  fill-opacity: .7
+  fill-opacity: .6
 }
 
 circle.dim {
-  fill-opacity: .2
+  fill-opacity: .1
+}
+
+circle.Individual {
+  fill: #aaad07;
 }
 
 circle.Undefined {
-  fill: #00ffff;
+  fill: #b8b8b8;
+}
+
+circle.Center {
+  fill: #0000ff
 }
 
 circle.Camp {
-  fill: #00ff00
+  fill: #996633
 }
 
 circle.Dispersed {
@@ -51,5 +59,12 @@ cirlce.Center {
 }
 
 circle.Settlement {
-  fill: #ffff00
+  fill: #149904
+}
+circle.selected {
+  fill: #ff0000
+}
+
+#legend {
+  margin: 15px 0 0 -20px;
 }
