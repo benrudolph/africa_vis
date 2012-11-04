@@ -189,9 +189,38 @@ BarGraph.method("render", function() {
       .attr("class", "title")
       .attr("text-anchor", "middle")
       .attr("x", (this.width / 2))
-      .attr("y", this.margin / 4)
+      .attr("y", 12)
       .style("font-size", "12px")
       .text("Age breakdown for refugee camp: " + this.address)
+
+  this.svg
+      .append("text")
+      .attr("class", "femaleKey")
+      .attr("text-anchor", "end")
+      .attr("x", (this.width / 2) - (this.middlePadding / 2))
+      .attr("y", 32)
+      .style("font-size", "10px")
+      .style("fill", "pink")
+      .text("[female]")
+
+  this.svg
+      .append("text")
+      .attr("class", "maleKey")
+      .attr("text-anchor", "start")
+      .attr("x", (this.width / 2) + (this.middlePadding / 2))
+      .attr("y", 32)
+      .style("font-size", "10px")
+      .style("fill", "steelblue")
+      .text("[male]")
+
+  this.svg
+      .append("text")
+      .attr("class", "ageKey")
+      .attr("text-anchor", "middle")
+      .attr("x", (this.width / 2))
+      .attr("y", 32)
+      .style("font-size", "10px")
+      .text("[age]")
 
   this.svg
       .selectAll(".male")
