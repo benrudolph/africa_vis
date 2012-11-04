@@ -4,7 +4,7 @@ var Africa = function(data) {
     zoom: 3,
     mapTypeId: google.maps.MapTypeId.TERRAIN,
     minZoom: 3,
-    maxZoom: 5
+    maxZoom: 6
   }
 
   this.map = new Map(data, mapOptions, this)

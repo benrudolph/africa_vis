@@ -13,6 +13,9 @@ var ScatterPlot = function(selector, data, height, width, africa, cyFn, name, yL
   this.name = name
   this.yLabel = yLabel
 
+  this.isArrowVisible = true
+  this.arrowSelection = "#scatterArrow"
+
   this.svg = d3
       .select(selector)
       .append("svg")
@@ -153,7 +156,16 @@ ScatterPlot.method("render", function(d) {
 
 })
 
+ScatterPlot.method("clearArrow", function() {
+  d3.select(this.arrowSelection)
+      .style("display", "none")
+})
+
 ScatterPlot.method("brushstart", function(d) {
+  if (this.isArrowVisible) {
+    this.clearArrow()
+    this.isArrowVisible = false
+  }
   this.africa.setActiveBrush(this.name)
 })
 

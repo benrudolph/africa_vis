@@ -14,12 +14,19 @@ var Map = function(data, options, africa) {
   this.selectedMarkerWidth = 20
   this.selectedMarkerHeight = 38
   this.selectedMarker = null
+  this.isArrowVisible = true
+  this.arrowSelection = "#mapArrow"
 
 
   this.default = this.data[51]
 
   this.barGraph = new BarGraph("#graph", this.default, 250, 900)
 }
+
+Map.method("clearArrow", function() {
+  d3.select(this.arrowSelection)
+      .style("display", "none")
+})
 
 Map.method("init", function() {
   this.placeMarkers()
@@ -89,6 +96,10 @@ Map.method("placeMarkers", function() {
     var that = this
     google.maps.event.addListener(marker, "click", (function(marker, d) {
       return function() {
+        if (that.isArrowVisible) {
+          that.clearArrow()
+          that.isArrowVisible = false
+        }
         that.africa.setSelected(d.ID)
       }
     })(marker, d))

@@ -68,3 +68,28 @@ circle.selected {
 #legend {
   margin: 15px 0 0 -20px;
 }
+
+.wrapper {
+  position:relative;
+}
+
+#scatterArrow {
+  top:30px;
+  left:100px;
+}
+
+#mapArrow {
+  top: 100px;
+  left: 70px;
+}
+
+.arrow {
+  position:absolute;
+  z-index: 99;
+  pointer-events: none;
+}
+
+#footer {
+  font-size: 10px;
+  text-align: center;
+}
