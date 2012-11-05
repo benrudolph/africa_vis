@@ -200,7 +200,6 @@ BarGraph.method("render", function() {
       .attr("x", (this.width / 2) - (this.middlePadding / 2))
       .attr("y", 32)
       .style("font-size", "10px")
-      .style("fill", "pink")
       .text("[female]")
 
   this.svg
@@ -210,7 +209,6 @@ BarGraph.method("render", function() {
       .attr("x", (this.width / 2) + (this.middlePadding / 2))
       .attr("y", 32)
       .style("font-size", "10px")
-      .style("fill", "steelblue")
       .text("[male]")
 
   this.svg
