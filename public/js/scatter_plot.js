@@ -12,6 +12,8 @@ var ScatterPlot = function(selector, data, height, width, africa, cyFn, name, yL
   this.cyFn = cyFn
   this.name = name
   this.yLabel = yLabel
+  this.tooltipWidth = 100
+  this.tooltipHeight = 40
 
   this.isArrowVisible = true
   this.arrowSelection = "#scatterArrow"
@@ -116,13 +118,11 @@ ScatterPlot.method("render", function(d) {
       .attr("address", function(d) {
         return d.Address
       })
-      .each(function(d) {
-        var id = d.ID
-        var options = {
-          title: d.Address
-        }
-        $(this).tooltip(options)
-
+      .on("mouseover", function(d) {
+        that.showTooltip(this, d, that)
+      })
+      .on("mouseout", function(d) {
+        that.hideTooltip(this, d)
       })
       .on("click", function(d) {
         that.africa.setSelected(d.ID)
@@ -155,6 +155,26 @@ ScatterPlot.method("render", function(d) {
       .text(this.yLabel)
 
 })
+
+ScatterPlot.method("hideTooltip", function(circle, d) {
+  d3.select("#tooltip" + d.ID).remove()
+})
+
+ScatterPlot.method("showTooltip", function(circle, d, that) {
+  var circleSelection = d3.select(circle)
+
+  this.svg
+      .append("text")
+      .attr("x", circleSelection.attr("cx") - (that.tooltipWidth / 2) + (that.margin / 2) + 5)
+      .attr("y", circleSelection.attr("cy") - (that.tooltipHeight / 2))
+      .attr("width", that.tooltipWidth)
+      .attr("height", that.tooltipHeight)
+      .attr("id", "tooltip" + d.ID)
+      .attr("text-anchor", "middle")
+      .attr("class", "svgTooltip")
+      .text(d.Address)
+})
+
 
 ScatterPlot.method("clearArrow", function() {
   d3.select(this.arrowSelection)

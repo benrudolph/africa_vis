@@ -93,3 +93,8 @@ circle.selected {
   font-size: 10px;
   text-align: center;
 }
+
+.svgTooltip {
+  font-size: 10px;
+}
+
